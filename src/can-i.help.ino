@@ -185,7 +185,7 @@ int read_response() {
         if(!strncmp(buffer, "HTTP", 4) == 0) { loop=0; continue; } // don't lose processing time on useless headers
         // there are better ways to extract http status code but we're not doing rocket science here :-)
         char temp[3] = {0}; strncpy(temp, buffer+9, 3); temp[3] = '\0';
-        // 200 ok?
+        // not 200 ok?
         if(strcmp(temp, "200") != 0) {
           message=buffer;
           return false;
@@ -198,7 +198,7 @@ int read_response() {
         JsonObject& root = jsonBuffer.parseObject(buffer);
         // was able to parse?
         if (!root.success()) {
-          message="parse json failed";
+          message="parsing json failed";
           return false;
         }
         // fetch data
