@@ -37,7 +37,7 @@
 #define URL_PATH "/1/classes/<class>"
 #define APPLICATION_ID "0w95nbYtKN8uoFmPA8oMUjLhnzpDYPCZzWZ41A6mg"
 #define REST_API_KEY "hFhJ9C1q7FIBkbH8M4QwhksLAPeykVBMWet9Qqvm0"
-//#define USER_ID ""
+#define USER_ID "3OC728XcGy"
 const char* color;
 const char* message;
 
@@ -95,7 +95,7 @@ void setup() {
 void loop() {
   // initiate connection to api server if interval since last millis passed
   if((previous_millis == 0 || (millis() - previous_millis > interval)) && !client.connected()) {
-    if(!initiate_connection_to_api()) {
+    if(!send_request()) {
       DEBUG_PRINTLN("Could not connect to server");
 
       // last millis is now
@@ -126,12 +126,12 @@ void loop() {
   }
 }
 
-// function that initiates a connection to the parse API and sends expected headers
-int initiate_connection_to_api() {
+// function that sends request to the parse API
+int send_request() {
   // let's check if we can get a connection to be established
   if (client.connect(API_SERVER_HOSTNAME, API_SERVER_PORT)) {
     DEBUG_PRINTLN("Successfully connected - sending request");
-    client.print("GET "); client.print(URL_PATH); client.println(" HTTP/1.1");
+    client.print("GET "); client.print(URL_PATH); client.print("?keys=color,message&where={\"UserID\":{\"__type\":\"Pointer\",\"className\":\"_User\",\"objectId\":\""); client.print(USER_ID); client.println("\"}} HTTP/1.1");
     client.print("Host: "); client.println(API_SERVER_HOSTNAME);
     client.print("User-Agent: "); client.println(HTTP_USER_AGENT);
     client.print("X-Parse-Application-Id: "); client.println(APPLICATION_ID);
@@ -157,7 +157,7 @@ int read_response() {
         message="buffer too small for data";
         return false;
     }
-    
+
     // read char
     character = client.read();
 
