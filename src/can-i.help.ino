@@ -34,7 +34,7 @@
 
 // variables
 EthernetClient client;
-byte mac[] = {  0x90, 0xA2, 0xDA, 0x00, 0x94, 0xD2 }; // MAC address of your device
+byte mac[] = {  0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; // MAC address of your device
 const char* color;
 const char* message;
 
