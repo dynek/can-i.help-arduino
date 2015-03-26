@@ -6,7 +6,6 @@
 //
 // why NDEBUG: http://stackoverflow.com/questions/5473556/what-is-the-ndebug-preprocessor-macro-used-for-on-different-platforms
 
-
 // -----------------------------
 // todo: function to output hex to LED
 // todo: set LED color
@@ -25,27 +24,19 @@
 #endif
 
 // include libraries
+#include "can-i.help.h";
 #ifdef NDEBUG
   #include <SPI.h>
 #endif
 #include <Ethernet.h>
 #include <ArduinoJson.h> // this guy rocks - https://github.com/bblanchon/ArduinoJson
+#include <LiquidCrystal.h>
 
-// parse.com API
-#define API_SERVER_HOSTNAME "api.parse.com"
-#define API_SERVER_PORT 80
-#define URL_PATH "/1/classes/<class>"
-#define APPLICATION_ID "0w95nbYtKN8uoFmPA8oMUjLhnzpDYPCZzWZ41A6mg"
-#define REST_API_KEY "hFhJ9C1q7FIBkbH8M4QwhksLAPeykVBMWet9Qqvm0"
-#define USER_ID "3OC728XcGy"
+// variables
+EthernetClient client;
+byte mac[] = {  0x90, 0xA2, 0xDA, 0x00, 0x94, 0xD2 }; // MAC address of your device
 const char* color;
 const char* message;
-
-// ethernet stuff
-EthernetClient client;
-byte mac[] = {  0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-#define HTTP_USER_AGENT "my user agent/1.0"
-#define BUFFER_SIZE 192 // biggest buffer will be payload and basically it is 181 chars max, let's give it some room for longer messages
 
 // clock watcher
 unsigned long previous_millis = 0; // store last time we updated led + LCD
@@ -157,7 +148,7 @@ int read_response() {
         message="buffer too small for data";
         return false;
     }
-
+    
     // read char
     character = client.read();
 
