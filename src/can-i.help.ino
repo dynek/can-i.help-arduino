@@ -54,13 +54,6 @@ void setup() {
   // setup lcd column and rows
   lcd.begin(LCD_COL, LCD_ROW);
   display_on_lcd("Initializing ESP8266", 1, false, true);
-  delay(5000);
-  display_on_lcd("Initializeeeeeee", 1, false, true);
-  delay(10000);
-  display_on_lcd("Initializeeeeeee ESP8266", 1, false, true);
-  delay(10000);
-  display_on_lcd("Initializeeeeeeee ESP8266", 1, false, true);
-  delay(10000);
 
   // start ethernet connection
   while(!Ethernet.begin(mac)) { // no need to check millis() as it takes significant amount of time to try to obtain dhcp info
