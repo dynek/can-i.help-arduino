@@ -1,16 +1,15 @@
 //
 // author: Pierrick Brossin <pierrick@bs-network.net>
 // version: 0.1
-// hardware: Arduino Uno with WiFi shield, one RGB LED and one LCD display
-// software: Account on parse.com (application ID and Rest API key)
+// hardware: Arduino Uno with ESP8266, one RGB LED and one LCD display
+// software: Account on parse.com (application ID and Rest API key) with http to https proxy in front (nginx will do)
 //
 // why NDEBUG: http://stackoverflow.com/questions/5473556/what-is-the-ndebug-preprocessor-macro-used-for-on-different-platforms
 
 // -----------------------------
 // todo: function to output hex to LED
 // todo: set LED color
-// todo: display stuff on LCD
-// todo; connect to WiFi when using WiFi shield
+// todo; connect to WiFi using ESP8266
 // -----------------------------
 
 // debug
@@ -29,31 +28,19 @@
   #include <SPI.h>
 #endif
 #include <Ethernet.h>
-#include <ArduinoJson.h> // this guy rocks - https://github.com/bblanchon/ArduinoJson
+#include <ArduinoJson.h> // this guy *really* rocks - https://github.com/bblanchon/ArduinoJson
 #include <LiquidCrystal.h>
 
-// variables
+// variables / instanciations
+LiquidCrystal lcd(PIN_RS, PIN_ENABLE, PIN_D4, PIN_D5, PIN_D6, PIN_D7);
 EthernetClient client;
-byte mac[] = {  0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; // MAC address of your device
+byte mac[] = {  0x90, 0xA2, 0xDA, 0x00, 0x94, 0xD2 }; // MAC address of your device
 const char* color;
 const char* message;
 
 // clock watcher
 unsigned long previous_millis = 0; // store last time we updated led + LCD
 unsigned long interval = 10000; // will most likely be 1 sec once "in prod"
-
-// pins used for RGB LED
-//const int redPin = 9;
-//const int greenPin = 10;
-//const int bluePin = 11;
-
-// default LED color
-//define DEFAULT_LED_COLOR "D18030"
-
-// write color to pins
-//analogWrite(redPin, currentColorValueRed);
-//analogWrite(bluePin, currentColorValueBlue);
-//analogWrite(greenPin, currentColorValueGreen);
 
 // setup program
 void setup() {
@@ -63,27 +50,35 @@ void setup() {
     // start serial port
     Serial.begin(9600);
   #endif
-
-  // set up pins used by RGB LED
-  //DEBUG_PRINTLN("Setup RGB pins");
-  //pinMode(redPin, OUTPUT);
-  //pinMode(greenPin, OUTPUT);
-  //pinMode(bluePin, OUTPUT);
+  
+  // setup lcd column and rows
+  lcd.begin(LCD_COL, LCD_ROW);
+  display_on_lcd("Initialize ESP8266", 1, false, true);
 
   // start ethernet connection
   while(!Ethernet.begin(mac)) { // no need to check millis() as it takes significant amount of time to try to obtain dhcp info
     DEBUG_PRINTLN("Ethernet DHCP failed - retry");
+    display_on_lcd("Ethernet DHCP failed - retry", 1, false, true);
   }
 
   // connection successful, display IP address
   DEBUG_PRINT("IP address: ");
+  display_on_lcd("IP address:", 1, false, true);
   DEBUG_PRINTLN(Ethernet.localIP());
-
-  // set default led color + lcd message here
+  lcd.setCursor(0, 1);
+  for (byte thisByte = 0; thisByte < 4; thisByte++) {
+    lcd.print(Ethernet.localIP()[thisByte], DEC);
+    if(thisByte < 3) { lcd.print("."); }
+  }
+  delay(3000);
+  
+  // set default lcd message
+  display_on_lcd(HTTP_USER_AGENT, 1, false, true);
+  delay(3000);
 }
 
 // well ... loop
-void loop() {
+void loop() {  
   // initiate connection to api server if interval since last millis passed
   if((previous_millis == 0 || (millis() - previous_millis > interval)) && !client.connected()) {
     if(!send_request()) {
@@ -104,6 +99,7 @@ void loop() {
     }
     // update LCD message
     DEBUG_PRINT("message: "); DEBUG_PRINTLN(message);
+    display_on_lcd((char *)message, 1, false, true);
 
     // give client time to settle down
     delay(500);
@@ -114,6 +110,30 @@ void loop() {
 
     // last millis is now
     previous_millis = millis();
+  }
+}
+
+void display_on_lcd(char * text, int row, bool centered, bool clear_lcd) {
+  // clear LCD ?
+  if(clear_lcd) { lcd.clear(); }
+  
+  // set cursor
+  int col = 0;
+  if(centered && strlen(text) <= (LCD_COL - 2)) { col = int((LCD_COL-strlen(text))/2); }
+  if(row > LCD_ROW) { row = LCD_ROW; }
+  lcd.setCursor(col, row - 1);
+  
+  // display message
+  if((row == 1 && strlen(text) <= LCD_COL) or row == 2) {
+    lcd.print(text);
+  } else if (row == 1 && strlen(text) > LCD_COL) {
+    // what shall we print on first line ?
+    char temp[LCD_COL] = {0}; strncpy(temp, text, LCD_COL); temp[LCD_COL] = '\0'; // first LCD_COL characters
+    char *space = strrchr(temp, ' '); // find last space char
+    strncpy(temp, text, space - temp); temp[space - temp] = '\0'; // first line
+    lcd.print(temp); // print line
+    lcd.setCursor(0, 1);
+    lcd.print(text + strlen(temp) + 1); // print second line
   }
 }
 

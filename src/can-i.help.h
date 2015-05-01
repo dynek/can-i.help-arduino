@@ -10,4 +10,19 @@
 
 // network stuff
 #define HTTP_USER_AGENT "my user agent/1.0"
-#define BUFFER_SIZE 192 // biggest buffer will be payload and basically it is 181 chars max, let's give it some room for longer messages
+#define BUFFER_SIZE 192 // biggest buffer will be payload and basically it is 148 chars without message so max should be 180
+
+// LCD
+#define LCD_COL 16
+#define LCD_ROW 2
+#define PIN_RS 8
+#define PIN_ENABLE 9
+#define PIN_D4 3
+#define PIN_D5 5
+#define PIN_D6 6
+#define PIN_D7 7
+
+// pins used for RGB LED
+//#define redPin = 9;
+//#define greenPin = 10;
+//#define bluePin = 11;
