@@ -1,8 +1,6 @@
 // Not so pretty but these are things I don't want to share on github :-)
 
 // prototyping
-void setup();
-void loop();
 void set_led_color(char * hex_color);
 void display_on_lcd(char * text, int row = 1, bool centered = false, bool clear_lcd = false);
 int send_request();
