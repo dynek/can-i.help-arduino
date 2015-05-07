@@ -1,15 +1,14 @@
 //
-// author: Pierrick Brossin <pierrick@bs-network.net>
+// author: Pierrick Brossin <github@bs-network.net>
 // version: 0.1
-// hardware: Arduino Uno with ESP8266, one RGB LED and one LCD display
+// hardware: Arduino Uno, ESP8266, one RGB LED and one LCD display
 // software: Account on parse.com (application ID and Rest API key) with http to https proxy in front (nginx will do)
 //
 // why NDEBUG: http://stackoverflow.com/questions/5473556/what-is-the-ndebug-preprocessor-macro-used-for-on-different-platforms
 
 // -----------------------------
-// todo: function to output hex to LED
-// todo: set LED color
-// todo; connect to WiFi using ESP8266
+// issue: power ESP8266
+// todo: connect to WiFi using ESP8266
 // -----------------------------
 
 // debug
@@ -27,14 +26,14 @@
 #ifdef NDEBUG
   #include <SPI.h>
 #endif
-#include <Ethernet.h>
+#include <Ethernet.h> // ethernet shield is being used instead of ESP8266 for the moment - to be removed in a later time
 #include <ArduinoJson.h> // this guy *really* rocks - https://github.com/bblanchon/ArduinoJson
 #include <LiquidCrystal.h>
 
 // variables / instanciations
 LiquidCrystal lcd(PIN_RS, PIN_ENABLE, PIN_D4, PIN_D5, PIN_D6, PIN_D7);
 EthernetClient client;
-byte mac[] = {  0x90, 0xA2, 0xDA, 0x00, 0x94, 0xD2 }; // MAC address of your device
+byte mac[] = MAC_ADDRESS;
 const char* color;
 const char* message;
 
@@ -51,7 +50,7 @@ void setup() {
     Serial.begin(9600);
   #endif
   
-  // PIN behavior
+  // PIN behavior for LED
   pinMode(REDPIN, OUTPUT);
   pinMode(GREENPIN, OUTPUT);
   pinMode(BLUEPIN, OUTPUT);
@@ -121,19 +120,19 @@ void loop() {
   }
 }
 
-void set_led_color(char * hex) {
+void set_led_color(char * hex_color) {
   char temp[2] = {0};
   
   // red
-  strncpy(temp, color, 2); temp[2] = '\0';
+  strncpy(temp, hex_color, 2); temp[2] = '\0';
   analogWrite(REDPIN, strtol(temp, NULL, 16));
   
   // green
-  strncpy(temp, color+2, 2); temp[2] = '\0';
+  strncpy(temp, hex_color+2, 2); temp[2] = '\0';
   analogWrite(GREENPIN, strtol(temp, NULL, 16));
   
   // blue
-  strncpy(temp, color+4, 2); temp[2] = '\0';
+  strncpy(temp, hex_color+4, 2); temp[2] = '\0';
   analogWrite(BLUEPIN, strtol(temp, NULL, 16));
 }
 

@@ -1,6 +1,9 @@
 // Not so pretty but these are things I don't want to share on github :-)
 
 // prototyping
+void setup();
+void loop();
+void set_led_color(char * hex_color);
 void display_on_lcd(char * text, int row = 1, bool centered = false, bool clear_lcd = false);
 int send_request();
 int read_response();
@@ -14,6 +17,7 @@ int read_response();
 #define USER_ID "y0i344AsYx"
 
 // network stuff
+#define MAC_ADDRESS {  0x00, 0x01, 0x02, 0x03, 0x04, 0x05 } // MAC address of your device
 #define HTTP_USER_AGENT "my user agent/1.0"
 #define BUFFER_SIZE 192 // biggest buffer will be payload and basically it is 148 chars without message so max should be 180
 
