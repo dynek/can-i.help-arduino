@@ -1,5 +1,10 @@
 // Not so pretty but these are things I don't want to share on github :-)
 
+// prototyping
+void display_on_lcd(char * text, int row = 1, bool centered = false, bool clear_lcd = false);
+int send_request();
+int read_response();
+
 // parse.com API
 #define API_SERVER_HOSTNAME "api.parse.com"
 #define API_SERVER_PORT 80
@@ -15,14 +20,14 @@
 // LCD
 #define LCD_COL 16
 #define LCD_ROW 2
-#define PIN_RS 8
-#define PIN_ENABLE 9
-#define PIN_D4 3
-#define PIN_D5 5
-#define PIN_D6 6
-#define PIN_D7 7
+#define PIN_RS 14
+#define PIN_ENABLE 15
+#define PIN_D4 16
+#define PIN_D5 17
+#define PIN_D6 18
+#define PIN_D7 19
 
 // pins used for RGB LED
-//#define redPin = 9;
-//#define greenPin = 10;
-//#define bluePin = 11;
+#define REDPIN 3
+#define GREENPIN 5
+#define BLUEPIN 6

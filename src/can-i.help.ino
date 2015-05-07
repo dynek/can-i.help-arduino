@@ -40,16 +40,21 @@ const char* message;
 
 // clock watcher
 unsigned long previous_millis = 0; // store last time we updated led + LCD
-unsigned long interval = 10000; // will most likely be 1 sec once "in prod"
+unsigned long interval = 5000; // will most likely be 1 sec once "in prod"
 
 // setup program
-void setup() {
+void setup() { 
   #ifdef NDEBUG
     // hold on for 1 sec so Serial Monitor can be opened
     delay(1000);
     // start serial port
     Serial.begin(9600);
   #endif
+  
+  // PIN behavior
+  pinMode(REDPIN, OUTPUT);
+  pinMode(GREENPIN, OUTPUT);
+  pinMode(BLUEPIN, OUTPUT);
   
   // setup lcd column and rows
   lcd.begin(LCD_COL, LCD_ROW);
@@ -70,11 +75,11 @@ void setup() {
     lcd.print(Ethernet.localIP()[thisByte], DEC);
     if(thisByte < 3) { lcd.print("."); }
   }
-  delay(3000);
+  delay(2000);
   
   // set default lcd message
   display_on_lcd(HTTP_USER_AGENT, 1, false, true);
-  delay(3000);
+  delay(2000);
 }
 
 // well ... loop
@@ -95,11 +100,14 @@ void loop() {
   if(client.connected() and client.available()) {
     // read response
     if(read_response()) {
+      // update LED color
       DEBUG_PRINT("color: "); DEBUG_PRINTLN(color);
+      set_led_color((char *)color);
+      
+      // update LCD message
+      DEBUG_PRINT("message: "); DEBUG_PRINTLN(message);
+      display_on_lcd((char *)message, 1, false, true);
     }
-    // update LCD message
-    DEBUG_PRINT("message: "); DEBUG_PRINTLN(message);
-    display_on_lcd((char *)message, 1, false, true);
 
     // give client time to settle down
     delay(500);
@@ -111,6 +119,22 @@ void loop() {
     // last millis is now
     previous_millis = millis();
   }
+}
+
+void set_led_color(char * hex) {
+  char temp[2] = {0};
+  
+  // red
+  strncpy(temp, color, 2); temp[2] = '\0';
+  analogWrite(REDPIN, strtol(temp, NULL, 16));
+  
+  // green
+  strncpy(temp, color+2, 2); temp[2] = '\0';
+  analogWrite(GREENPIN, strtol(temp, NULL, 16));
+  
+  // blue
+  strncpy(temp, color+4, 2); temp[2] = '\0';
+  analogWrite(BLUEPIN, strtol(temp, NULL, 16));
 }
 
 void display_on_lcd(char * text, int row, bool centered, bool clear_lcd) {
